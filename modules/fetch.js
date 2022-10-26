@@ -1,4 +1,11 @@
 export async function fetchFallas(URL) {
-  const response = await fetch(URL);
+  const options = {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+  };
+
+  const response = await fetch(URL, options);
   return await response.json();
 }
