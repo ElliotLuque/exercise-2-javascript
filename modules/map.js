@@ -1,35 +1,38 @@
 import { fetchFallas } from "./fetch.js";
 
+const URL = "../resources/fallas.json";
+
 export async function initMap() {
   const valencia = { lat: 39.4699, lng: -0.3774 };
   const mapOptions = { zoom: 14, center: valencia, mapTypeId: "satellite" };
 
   const map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
-  const URL = "../resources/fallas.json";
+  const fallas = await fetchFallas(URL);
 
-  fetchFallas(URL).then((json) => {
-    const fallaArray = json.features;
+  fallas.features.forEach((falla) => {
+    const { nombre, lema, boceto } = falla.properties;
+    const [lng, lat] = falla.geometry.coordinates;
 
-    fallaArray.forEach((falla) => {
-      const { nombre, lema, boceto } = falla.properties;
-      const [lng, lat] = falla.geometry.coordinates;
-
-      const infoWindow = new google.maps.InfoWindow({
-        content: generateHtmlContent(nombre, lema, boceto),
-        ariaLabel: nombre,
-      });
-
-      const marker = new google.maps.Marker({
-        position: { lat, lng },
-        map,
-        title: nombre,
-      });
-
-      marker.addListener("click", () =>
-        infoWindow.open({ anchor: marker, map })
-      );
+    const infoWindow = new google.maps.InfoWindow({
+      content: generateHtmlContent(nombre, lema, boceto),
+      ariaLabel: nombre,
     });
+
+    const marker = new google.maps.Marker({
+      position: { lat, lng },
+      map,
+      title: nombre,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8.5,
+        fillColor: "#0052CC",
+        fillOpacity: 0.6,
+        strokeWeight: 0.4,
+      },
+    });
+
+    marker.addListener("click", () => infoWindow.open({ anchor: marker, map }));
   });
 }
 
